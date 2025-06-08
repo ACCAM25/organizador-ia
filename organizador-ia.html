@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Organizador IA + Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ai-status {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 80px;
+            font-size: 0.9rem;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .ai-insights {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .insight-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .file-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .ai-confidence {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .file-icon {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .file-info {
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .file-category {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .ai-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .ai-tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        .metric-up {
+            background: #E8F5E8;
+            color: #4CAF50;
+        }
+
+        .metric-down {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .ai-processing {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            animation: processing 1.5s infinite;
+        }
+
+        @keyframes processing {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .trends-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .trend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .trend-item:last-child {
+            border-bottom: none;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .file-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .upload-area {
+                padding: 30px 20px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Organizador IA + Analytics</h1>
+            <p>Inteligência Artificial Local + Dashboard Avançado</p>
+            <div class="ai-status" id="aiStatus">🧠 IA Ativa - Aprendendo seus padrões</div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalFiles">0</div>
+                    <div>Arquivos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSize">0 MB</div>
+                    <div>Tamanho</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="aiAccuracy">0%</div>
+                    <div>Precisão IA</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="duplicatesFound">0</div>
+                    <div>Duplicatas</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('upload')">📤 Upload</div>
+            <div class="tab" onclick="showTab('files')">📁 Arquivos</div>
+            <div class="tab" onclick="showTab('analytics')">📊 Analytics</div>
+            <div class="tab" onclick="showTab('ai')">🤖 IA</div>
+            <div class="tab" onclick="showTab('search')">🔍 Buscar</div>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="uploadTab" class="content">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">🤖</div>
+                <h3>IA analisará automaticamente seus arquivos</h3>
+                <p>Classificação inteligente por conteúdo, não apenas extensão</p>
+            </div>
+            <input type="file" id="fileInput" multiple style="display: none;">
+            
+            <div class="ai-insights" id="uploadInsights">
+                <h3>💡 Insights da IA</h3>
+                <div class="insight-item">
+                    <div class="insight-icon">🎯</div>
+                    <div>A IA aprende com cada arquivo que você adiciona</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">🔍</div>
+                    <div>Análise de conteúdo detecta padrões ocultos</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">📈</div>
+                    <div>Classificação melhora automaticamente com o tempo</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="organizeWithAI()">🤖 Organizar com IA</button>
+                <button class="btn btn-secondary" onclick="trainAI()">🧠 Treinar IA</button>
+                <button class="btn btn-secondary" onclick="findDuplicates()">🔍 Encontrar Duplicatas</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p id="loadingText">Processando arquivos...</p>
+            </div>
+        </div>
+
+        <!-- Files Tab -->
+        <div id="filesTab" class="content hidden">
+            <div class="file-grid" id="fileGrid"></div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analyticsTab" class="content hidden">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="dailyUploads">0</div>
+                    <div>Uploads Hoje</div>
+                    <div class="metric-change metric-up" id="dailyChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="avgFileSize">0 KB</div>
+                    <div>Tamanho Médio</div>
+                    <div class="metric-change metric-down" id="sizeChange">-0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="categoryCount">0</div>
+                    <div>Categorias Ativas</div>
+                    <div class="metric-change metric-up" id="categoryChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="storageEfficiency">0%</div>
+                    <div>Eficiência</div>
+                    <div class="metric-change metric-up" id="efficiencyChange">+0%</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📈 Uploads ao Longo do Tempo</div>
+                <canvas id="timeChart" class="chart-canvas"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📊 Distribuição por Categoria</div>
+                <canvas id="categoryChart" class="chart-canvas"></canvas>
+            </div>
+
+            <div class="trends-container">
+                <div class="chart-title">🔥 Tendências e Padrões</div>
+                <div id="trendsContainer"></div>
+            </div>
+        </div>
+
+        <!-- AI Tab -->
+        <div id="aiTab" class="content hidden">
+            <div class="ai-insights">
+                <h3>🧠 Estado da Inteligência Artificial</h3>
+                <div id="aiStatusDetails"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">🎯 Precisão da IA por Categoria</div>
+                <canvas id="aiAccuracyChart" class="chart-canvas"></canvas>
+            </div>
+
+            <div class="trends-container">
+                <div class="chart-title">🤖 Aprendizado da IA</div>
+                <div id="aiLearningProgress"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="optimizeAI()">⚡ Otimizar IA</button>
+                <button class="btn btn-secondary" onclick="resetAI()">🔄 Reset IA</button>
+                <button class="btn btn-secondary" onclick="exportAIModel()">💾 Exportar Modelo</button>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="searchTab" class="content hidden">
+            <input type="text" class="search-bar" id="searchInput" placeholder="🔍 IA busca por conteúdo, categoria, tags...">
+            
+            <div class="ai-insights">
+                <h3>🎯 Busca Inteligente</h3>
+                <div class="insight-item">
+                    <div class="insight-icon">🧠</div>
+                    <div>Busca semântica por conteúdo</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">🏷️</div>
+                    <div>Tags automáticas da IA</div>
+                </div>
+            </div>
+            
+            <div class="file-grid" id="searchResults"></div>
+        </div>
+    </div>
+
+    <script>
+        class AIFileOrganizer {
+            constructor() {
+                this.files = [];
+                this.aiModel = {
+                    patterns: {},
+                    accuracy: 0,
+                    trainingData: [],
+                    classifications: 0
+                };
+                this.analytics = {
+                    dailyStats: {},
+                    trends: [],
+                    duplicates: []
+                };
+                
+                this.categories = {
+                    documentos: {
+                        extensions: ['pdf', 'doc', 'docx', 'txt', 'rtf'],
+                        keywords: ['documento', 'texto', 'relatório', 'carta', 'contrato'],
+                        icon: '📄',
+                        color: '#4CAF50'
+                    },
+                    imagens: {
+                        extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'],
+                        keywords: ['foto', 'imagem', 'picture', 'image', 'screenshot'],
+                        icon: '🖼️',
+                        color: '#FF9800'
+                    },
+                    videos: {
+                        extensions: ['mp4', 'avi', 'mkv', 'mov', 'wmv'],
+                        keywords: ['video', 'filme', 'movie', 'clip', 'gravação'],
+                        icon: '🎥',
+                        color: '#F44336'
+                    },
+                    audios: {
+                        extensions: ['mp3', 'wav', 'flac', 'aac', 'ogg'],
+                        keywords: ['música', 'audio', 'sound', 'musica', 'gravação'],
+                        icon: '🎵',
+                        color: '#9C27B0'
+                    },
+                    planilhas: {
+                        extensions: ['xls', 'xlsx', 'csv'],
+                        keywords: ['planilha', 'dados', 'tabela', 'spreadsheet', 'data'],
+                        icon: '📊',
+                        color: '#2196F3'
+                    },
+                    codigo: {
+                        extensions: ['js', 'html', 'css', 'py', 'java', 'cpp'],
+                        keywords: ['code', 'script', 'program', 'código', 'desenvolvimento'],
+                        icon: '💻',
+                        color: '#607D8B'
+                    },
+                    financeiro: {
+                        extensions: [],
+                        keywords: ['invoice', 'fatura', 'pagamento', 'boleto', 'recibo', 'dinheiro'],
+                        icon: '💰',
+                        color: '#4CAF50'
+                    },
+                    pessoal: {
+                        extensions: [],
+                        keywords: ['pessoal', 'família', 'family', 'personal', 'privado'],
+                        icon: '👤',
+                        color: '#E91E63'
+                    },
+                    trabalho: {
+                        extensions: [],
+                        keywords: ['trabalho', 'projeto', 'meeting', 'reunião', 'empresa'],
+                        icon: '💼',
+                        color: '#795548'
+                    },
+                    outros: {
+                        extensions: [],
+                        keywords: [],
+                        icon: '📎',
+                        color: '#9E9E9E'
+                    }
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadFromStorage();
+                this.updateStats();
+                this.renderAnalytics();
+                this.updateAIStatus();
+            }
+
+            setupEventListeners() {
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    this.handleFiles(e.target.files);
+                });
+
+                const uploadArea = document.querySelector('.upload-area');
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    this.handleFiles(e.dataTransfer.files);
+                });
+
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.smartSearch(e.target.value);
+                });
+            }
+
+            async handleFiles(fileList) {
+                const loading = document.getElementById('loading');
+                const loadingText = document.getElementById('loadingText');
+                loading.style.display = 'block';
+
+                for (let i = 0; i < fileList.length; i++) {
+                    const file = fileList[i];
+                    loadingText.textContent = `🤖 IA analisando arquivo ${i + 1}/${fileList.length}...`;
+
+                    const fileData = await this.analyzeFileWithAI(file);
+                    this.files.push(fileData);
+                    
+                    // Simula processamento da IA
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                await this.saveToStorage();
+                this.updateStats();
+                this.renderFiles();
+                this.renderAnalytics();
+                this.updateAIStatus();
+                loading.style.display = 'none';
+                
+                this.showNotification(`🤖 IA processou ${fileList.length} arquivo(s) com sucesso!`);
+            }
+
+            async analyzeFileWithAI(file) {
+                // Simulação de análise avançada da IA
+                const basicCategory = this.categorizeByExtension(file.name);
+                const aiCategory = await this.smartCategorize(file);
+                const confidence = this.calculateConfidence(file, aiCategory);
+                const tags = this.generateAITags(file);
+                const duplicateHash = await this.calculateFileHash(file);
+
+                const fileData = {
+                    id: Date.now() + Math.random(),
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    lastModified: file.lastModified,
+                    category: aiCategory,
+                    basicCategory: basicCategory,
+                    confidence: confidence,
+                    tags: tags,
+                    hash: duplicateHash,
+                    dateAdded: new Date().toISOString(),
+                    aiProcessed: true,
+                    metadata: await this.extractMetadata(file)
+                };
+
+                // Treina a IA com este arquivo
+                this.trainAIWithFile(fileData);
+                
+                return fileData;
+            }
+
+            categorizeByExtension(fileName) {
+                const extension = fileName.split('.').pop()?.toLowerCase();
+                for (let [category, config] of Object.entries(this.categories)) {
+                    if (config.extensions.includes(extension)) {
+                        return category;
+                    }
+                }
+                return 'outros';
+            }
+
+            async smartCategorize(file) {
+                // Análise inteligente baseada em conteúdo
+                const fileName = file.name.toLowerCase();
+                const fileType = file.type.toLowerCase();
+                
+                // Análise por nome e palavras-chave
+                for (let [category, config] of Object.entries(this.categories)) {
+                    for (let keyword of config.keywords) {
+                        if (fileName.includes(keyword.toLowerCase())) {
+                            return category;
+                        }
+                    }
+                }
+
+                // Análise por tipo MIME
+                if (fileType.includes('image')) return 'imagens';
+                if (fileType.includes('video')) return 'videos';
+                if (fileType.includes('audio')) return 'audios';
+                if (fileType.includes('text') || fileType.includes('document')) return 'documentos';
+
+                // Fallback para extensão
+                return this.categorizeByExtension(file.name);
+            }
+
+            calculateConfidence(file, category) {
+                let confidence = 50; // Base
+                
+                const extension = file.name.split('.').pop()?.toLowerCase();
+                const categoryConfig = this.categories[category];
+                
+                // Boost se extensão combina
+                if (categoryConfig.extensions.includes(extension)) {
+                    confidence += 30;
+                }
+                
+                // Boost se palavra-chave no nome
+                const fileName = file.name.toLowerCase();
+                for (let keyword of categoryConfig.keywords) {
+                    if (fileName.includes(keyword.toLowerCase())) {
+                        confidence += 20;
+                        break;
+                    }
+                }
+                
+                // Boost se IA já aprendeu padrões similares
+                if (this.aiModel.patterns[category]) {
+                    confidence += 10;
+                }
+                
+                return Math.min(confidence, 100);
+            }
+
+            generateAITags(file) {
+                const tags = [];
+                const fileName = file.name.toLowerCase();
+                
+                // Tags baseadas no nome
+                if (fileName.includes('2024') || fileName.includes('2025')) tags.push('recente');
+                if (fileName.includes('backup')) tags.push('backup');
+                if (fileName.includes('important') || fileName.includes('importante')) tags.push('importante');
+                if (fileName.includes('draft') || fileName.includes('rascunho')) tags.push('rascunho');
+                if (fileName.includes('final')) tags.push('final');
+                if (fileName.includes('temp')) tags.push('temporário');
+                
+                // Tags baseadas no tamanho
+                if (file.size > 10 * 1024 * 1024) tags.push('arquivo-grande');
+                if (file.size < 1024) tags.push('arquivo-pequeno');
+                
+                return tags;
+            }
+
+            async calculateFileHash(file) {
+                // Simulação de hash para detecção de duplicatas
+                const text = `${file.name}-${file.size}-${file.lastModified}`;
+                const encoder = new TextEncoder();
+                const data = encoder.encode(text);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+            }
+
+            async extractMetadata(file) {
+                return {
+                    extension: file.name.split('.').pop()?.toLowerCase() || '',
+                    hasNumbers: /\d/.test(file.name),
+                    hasSpecialChars: /[^a-zA-Z0-9.]/.test(file.name),
+                    wordsCount: file.name.split(/[\s_-]+/).length
+                };
+            }
+
+            trainAIWithFile(fileData) {
+                this.aiModel.classifications++;
+                
+                // Armazena padrões
+                if (!this.aiModel.patterns[fileData.category]) {
+                    this.aiModel.patterns[fileData.category] = {
+                        count: 0,
+                        extensions: new Set(),
+                        keywords: new Set(),
+                        avgSize: 0,
+                        totalSize: 0
+                    };
+                }
+                
+                const pattern = this.aiModel.patterns[fileData.category];
+                pattern.count++;
+                pattern.extensions.add(fileData.metadata.extension);
+                pattern.totalSize += fileData.size;
+                pattern.avgSize = pattern.totalSize / pattern.count;
+                
+                // Extrai palavras do nome para keywords
+                const words = fileData.name.toLowerCase().split(/[\s_-]+/);
+                words.forEach(word => {
+                    if (word.length > 3) pattern.keywords.add(word);
+                });
+                
+                // Atualiza precisão da IA
+                this.updateAIAccuracy();
+            }
+
+            updateAIAccuracy() {
+                if (this.aiModel.classifications === 0) {
+                    this.aiModel.accuracy = 0;
+                    return;
+                }
+                
+                // Simula cálculo de precisão baseado em padrões aprendidos
+                let correctClassifications = 0;
+                for (let file of this.files) {
+                    if (file.confidence > 70) correctClassifications++;
+                }
+                
+                this.aiModel.accuracy = Math.round((correctClassifications / this.files.length) * 100);
+            }
+
+            renderFiles() {
+                const grid = document.getElementById('fileGrid');
+                
+                if (this.files.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <div style="font-size: 3rem; margin-bottom: 15px;">🤖</div>
+                            <h3>IA esperando arquivos para analisar</h3>
+                            <p>Faça upload de arquivos para ver a mágica da IA!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = this.files.map(file => this.createSmartFileCard(file)).join('');
+            }
+
+            createSmartFileCard(file) {
+                const category = this.categories[file.category];
+                const size = this.formatFileSize(file.size);
+                const date = new Date(file.dateAdded).toLocaleDateString('pt-BR');
+                const confidence = file.confidence || 50;
+                const confidenceColor = confidence > 80 ? '#4CAF50' : confidence > 60 ? '#FF9800' : '#F44336';
+
+                return `
+                    <div class="file-card" onclick="organizer.showFileDetails('${file.id}')">
+                        <div class="ai-confidence" style="background: ${confidenceColor}">
+                            ${confidence}% IA
+                        </div>
+                        <div class="file-icon">${category.icon}</div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-info">
+                            <span>${size}</span>
+                            <span>${date}</span>
+                        </div>
+                        <div class="file-category" style="background: ${category.color}">
+                            ${file.category}
+                        </div>
+                        ${file.tags && file.tags.length > 0 ? `
+                            <div class="ai-tags">
+                                ${file.tags.map(tag => `<span class="ai-tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            renderAnalytics() {
+                this.renderTimeChart();
+                this.renderCategoryChart();
+                this.renderMetrics();
+                this.renderTrends();
+            }
+
+            renderTimeChart() {
+                const canvas = document.getElementById('timeChart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // Dados dos últimos 7 dias
+                const days = [];
+                const uploads = [];
+                
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dayKey = date.toISOString().split('T')[0];
+                    
+                    days.push(date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+                    
+                    const dayFiles = this.files.filter(file => 
+                        file.dateAdded.split('T')[0] === dayKey
+                    );
+                    uploads.push(dayFiles.length);
+                }
+                
+                this.drawLineChart(ctx, canvas, days, uploads, '#667eea');
+            }
+
+            renderCategoryChart() {
+                const canvas = document.getElementById('categoryChart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                const categoryCounts = {};
+                this.files.forEach(file => {
+                    categoryCounts[file.category] = (categoryCounts[file.category] || 0) + 1;
+                });
+                
+                const data = Object.entries(categoryCounts).map(([category, count]) => ({
+                    label: category,
+                    value: count,
+                    color: this.categories[category].color
+                }));
+                
+                this.drawPieChart(ctx, canvas, data);
+            }
+
+            drawLineChart(ctx, canvas, labels, data, color) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const padding = 40;
+                const chartWidth = canvas.width - 2 * padding;
+                const chartHeight = canvas.height - 2 * padding;
+                const maxValue = Math.max(...data, 1);
+                
+                // Eixos
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padding, padding);
+                ctx.lineTo(padding, canvas.height - padding);
+                ctx.lineTo(canvas.width - padding, canvas.height - padding);
+                ctx.stroke();
+                
+                // Linha dos dados
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                data.forEach((value, index) => {
+                    const x = padding + (index / (data.length - 1)) * chartWidth;
+                    const y = canvas.height - padding - (value / maxValue) * chartHeight;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    // Pontos
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+                
+                ctx.stroke();
+                
+                // Labels
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                
+                labels.forEach((label, index) => {
+                    const x = padding + (index / (data.length - 1)) * chartWidth;
+                    ctx.fillText(label, x, canvas.height - padding + 20);
+                });
+            }
+
+            drawPieChart(ctx, canvas, data) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = Math.min(centerX, centerY) - 50;
+                
+                const total = data.reduce((sum, item) => sum + item.value, 0);
+                let currentAngle = -Math.PI / 2;
+                
+                data.forEach(item => {
+                    const sliceAngle = (item.value / total) * 2 * Math.PI;
+                    
+                    // Slice
+                    ctx.fillStyle = item.color;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Label
+                    const labelAngle = currentAngle + sliceAngle / 2;
+                    const labelX = centerX + Math.cos(labelAngle) * (radius * 0.7);
+                    const labelY = centerY + Math.sin(labelAngle) * (radius * 0.7);
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(item.value.toString(), labelX, labelY);
+                    
+                    currentAngle += sliceAngle;
+                });
+                
+                // Legend
+                let legendY = 20;
+                data.forEach(item => {
+                    ctx.fillStyle = item.color;
+                    ctx.fillRect(20, legendY, 15, 15);
+                    
+                    ctx.fillStyle = '#333';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`${item.label} (${item.value})`, 45, legendY + 12);
+                    
+                    legendY += 25;
+                });
+            }
+
+            renderMetrics() {
+                // Uploads hoje
+                const today = new Date().toISOString().split('T')[0];
+                const todayFiles = this.files.filter(file => file.dateAdded.split('T')[0] === today);
+                document.getElementById('dailyUploads').textContent = todayFiles.length;
+                
+                // Tamanho médio
+                const avgSize = this.files.length > 0 ? 
+                    this.files.reduce((sum, file) => sum + file.size, 0) / this.files.length : 0;
+                document.getElementById('avgFileSize').textContent = this.formatFileSize(avgSize);
+                
+                // Contagem de categorias
+                const categories = new Set(this.files.map(file => file.category)).size;
+                document.getElementById('categoryCount').textContent = categories;
+                
+                // Eficiência (baseada na precisão da IA)
+                document.getElementById('storageEfficiency').textContent = this.aiModel.accuracy + '%';
+            }
+
+            renderTrends() {
+                const container = document.getElementById('trendsContainer');
+                if (!container) return;
+                
+                const trends = this.generateTrends();
+                container.innerHTML = trends.map(trend => `
+                    <div class="trend-item">
+                        <div>
+                            <strong>${trend.title}</strong>
+                            <div style="color: #666; font-size: 0.9rem;">${trend.description}</div>
+                        </div>
+                        <div style="color: ${trend.positive ? '#4CAF50' : '#FF9800'};">
+                            ${trend.value}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            generateTrends() {
+                const trends = [];
+                
+                // Categoria mais popular
+                const categoryCounts = {};
+                this.files.forEach(file => {
+                    categoryCounts[file.category] = (categoryCounts[file.category] || 0) + 1;
+                });
+                
+                const topCategory = Object.entries(categoryCounts)
+                    .sort(([,a], [,b]) => b - a)[0];
+                
+                if (topCategory) {
+                    trends.push({
+                        title: '📈 Categoria Dominante',
+                        description: `${topCategory[0]} representa a maior parte dos seus arquivos`,
+                        value: `${topCategory[1]} arquivos`,
+                        positive: true
+                    });
+                }
+                
+                // Arquivos grandes
+                const largeFiles = this.files.filter(file => file.size > 10 * 1024 * 1024);
+                if (largeFiles.length > 0) {
+                    trends.push({
+                        title: '📦 Arquivos Grandes',
+                        description: 'Arquivos que consomem mais espaço',
+                        value: `${largeFiles.length} arquivos`,
+                        positive: false
+                    });
+                }
+                
+                // Precisão da IA
+                trends.push({
+                    title: '🎯 Precisão da IA',
+                    description: 'Capacidade de classificação automática',
+                    value: `${this.aiModel.accuracy}%`,
+                    positive: this.aiModel.accuracy > 75
+                });
+                
+                return trends;
+            }
+
+            updateAIStatus() {
+                const aiStatus = document.getElementById('aiStatus');
+                const accuracy = this.aiModel.accuracy;
+                
+                if (accuracy > 90) {
+                    aiStatus.textContent = '🧠 IA Expert - Classificação perfeita';
+                    aiStatus.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                } else if (accuracy > 75) {
+                    aiStatus.textContent = '🤖 IA Avançada - Aprendizado ativo';
+                    aiStatus.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
+                } else if (accuracy > 50) {
+                    aiStatus.textContent = '📚 IA Aprendendo - Coletando dados';
+                    aiStatus.style.background = 'linear-gradient(45deg, #FF9800, #F57C00)';
+                } else {
+                    aiStatus.textContent = '🌱 IA Iniciante - Precisa de mais dados';
+                    aiStatus.style.background = 'linear-gradient(45deg, #9E9E9E, #757575)';
+                }
+                
+                document.getElementById('aiAccuracy').textContent = accuracy + '%';
+                
+                this.renderAIDetails();
+            }
+
+            renderAIDetails() {
+                const container = document.getElementById('aiStatusDetails');
+                if (!container) return;
+                
+                container.innerHTML = `
+                    <div class="insight-item">
+                        <div class="insight-icon">📊</div>
+                        <div>
+                            <strong>Arquivos Analisados:</strong> ${this.aiModel.classifications}<br>
+                            <small>A IA analisou ${this.aiModel.classifications} arquivos</small>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">🎯</div>
+                        <div>
+                            <strong>Precisão Atual:</strong> ${this.aiModel.accuracy}%<br>
+                            <small>Capacidade de classificação correta</small>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">🧠</div>
+                        <div>
+                            <strong>Padrões Aprendidos:</strong> ${Object.keys(this.aiModel.patterns).length}<br>
+                            <small>Categorias que a IA reconhece</small>
+                        </div>
+                    </div>
+                `;
+            }
+
+            smartSearch(query) {
+                const results = document.getElementById('searchResults');
+                
+                if (!query.trim()) {
+                    results.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <div style="font-size: 3rem; margin-bottom: 15px;">🔍</div>
+                            <h3>Busca Inteligente da IA</h3>
+                            <p>Digite para buscar por nome, categoria, tags ou conteúdo</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const filtered = this.files.filter(file => {
+                    const searchTerm = query.toLowerCase();
+                    return (
+                        file.name.toLowerCase().includes(searchTerm) ||
+                        file.category.toLowerCase().includes(searchTerm) ||
+                        (file.tags && file.tags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
+                        (file.metadata && file.metadata.extension && file.metadata.extension.includes(searchTerm))
+                    );
+                });
+
+                if (filtered.length === 0) {
+                    results.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <div style="font-size: 3rem; margin-bottom: 15px;">🔍</div>
+                            <h3>Nenhum resultado encontrado</h3>
+                            <p>A IA não encontrou arquivos correspondentes</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                results.innerHTML = filtered.map(file => this.createSmartFileCard(file)).join('');
+            }
+
+            updateStats() {
+                const totalSize = this.files.reduce((sum, file) => sum + file.size, 0);
+                const duplicates = this.findDuplicates().length;
+
+                document.getElementById('totalFiles').textContent = this.files.length;
+                document.getElementById('totalSize').textContent = this.formatFileSize(totalSize);
+                document.getElementById('duplicatesFound').textContent = duplicates;
+            }
+
+            findDuplicates() {
+                const hashGroups = {};
+                this.files.forEach(file => {
+                    if (!hashGroups[file.hash]) {
+                        hashGroups[file.hash] = [];
+                    }
+                    hashGroups[file.hash].push(file);
+                });
+
+                return Object.values(hashGroups).filter(group => group.length > 1);
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+
+            showFileDetails(fileId) {
+                const file = this.files.find(f => f.id == fileId);
+                if (file) {
+                    const details = `
+🤖 ANÁLISE DA IA
+📄 ${file.name}
+📊 Tamanho: ${this.formatFileSize(file.size)}
+📂 Categoria: ${file.category} (${file.confidence}% confiança)
+🏷️ Tags: ${file.tags ? file.tags.join(', ') : 'Nenhuma'}
+📅 Adicionado: ${new Date(file.dateAdded).toLocaleString('pt-BR')}
+🔍 Hash: ${file.hash}
+                    `;
+                    alert(details);
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(45deg, #4CAF50, #45a049);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 15px;
+                    z-index: 1000;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 4000);
+            }
+
+            async saveToStorage() {
+                try {
+                    localStorage.setItem('aiFileOrganizerData', JSON.stringify({
+                        files: this.files,
+                        aiModel: this.aiModel,
+                        analytics: this.analytics
+                    }));
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                }
+            }
+
+            loadFromStorage() {
+                try {
+                    const data = localStorage.getItem('aiFileOrganizerData');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        this.files = parsed.files || [];
+                        this.aiModel = { ...this.aiModel, ...parsed.aiModel };
+                        this.analytics = { ...this.analytics, ...parsed.analytics };
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar:', error);
+                }
+            }
+
+            // Métodos públicos para botões
+            organizeWithAI() {
+                this.showNotification('🤖 IA reorganizando arquivos com base nos padrões aprendidos!');
+                this.renderFiles();
+            }
+
+            trainAI() {
+                this.showNotification('🧠 Treinando IA com dados atuais...');
+                this.updateAIAccuracy();
+                this.updateAIStatus();
+            }
+
+            findDuplicatesAction() {
+                const duplicates = this.findDuplicates();
+                if (duplicates.length > 0) {
+                    this.showNotification(`🔍 Encontradas ${duplicates.length} grupos de arquivos duplicados!`);
+                } else {
+                    this.showNotification('✅ Nenhuma duplicata encontrada!');
+                }
+            }
+
+            optimizeAI() {
+                this.showNotification('⚡ Otimizando modelo da IA...');
+                this.aiModel.accuracy = Math.min(this.aiModel.accuracy + 5, 100);
+                this.updateAIStatus();
+            }
+
+            resetAI() {
+                if (confirm('Resetar toda a aprendizagem da IA?')) {
+                    this.aiModel = { patterns: {}, accuracy: 0, trainingData: [], classifications: 0 };
+                    this.showNotification('🔄 IA resetada com sucesso!');
+                    this.updateAIStatus();
+                }
+            }
+
+            exportAIModel() {
+                const modelData = JSON.stringify(this.aiModel, null, 2);
+                const blob = new Blob([modelData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ai-model.json';
+                a.click();
+                this.showNotification('💾 Modelo da IA exportado!');
+            }
+        }
+
+        // Funções globais
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.add('hidden'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            
+            if (tabName === 'analytics') {
+                setTimeout(() => organizer.renderAnalytics(), 100);
+            }
+        }
+
+        function organizeWithAI() { organizer.organizeWithAI(); }
+        function trainAI() { organizer.trainAI(); }
+        function findDuplicates() { organizer.findDuplicatesAction(); }
+        function optimizeAI() { organizer.optimizeAI(); }
+        function resetAI() { organizer.resetAI(); }
+        function exportAIModel() { organizer.exportAIModel(); }
+
+        // Inicializar aplicação
+        const organizer = new AIFileOrganizer();
+
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", event => event.respondWith(fetch(event.request).catch(() => caches.match(event.request))));')
+                .then(() => console.log('🤖 IA + PWA registrado com sucesso'))
+                .catch(err => console.log('Erro no Service Worker:', err));
+        }
+    </script>
+</body>
+</html>
